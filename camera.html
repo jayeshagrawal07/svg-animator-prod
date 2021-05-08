@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>PoseNet - Camera Feed Demo</title>
+    <style>body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: #C2E7FA;
+            background-attachment: fixed;
+            background-size: cover;
+        }
+        
+        .canvas-container {
+            width: 800px;
+            max-width: 100%;
+            display: flex;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .camera-canvas {
+            position: absolute;
+            transform: scale(0.5, 0.5);
+            transform-origin: 0 0;
+            left: 10px;
+        }
+        
+        #main {
+            left: 0;
+            position: absolute;
+        }
+        /* .illustration-canvas { */
+        /* border: 1px solid #eeeeee; */
+        /* } */
+        
+        .footer {
+            position: fixed;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            color: black;
+        }
+        
+        .footer-text {
+            max-width: 600px;
+            text-align: center;
+            margin: auto;
+        }
+        
+        @media only screen and (max-width: 600px) {
+            .footer-text,
+            .dg {
+                display: none;
+            }
+        }
+        /*
+         *  The following loading spinner CSS is from SpinKit project
+         *  https://github.com/tobiasahlin/SpinKit
+         */
+        
+        .sk-spinner-pulse {
+            width: 20px;
+            height: 20px;
+            margin: auto 10px;
+            float: left;
+            background-color: rgb(97, 97, 97);
+            border-radius: 100%;
+            -webkit-animation: sk-pulseScaleOut 1s infinite ease-in-out;
+            animation: sk-pulseScaleOut 1s infinite ease-in-out;
+        }
+        
+        @-webkit-keyframes sk-pulseScaleOut {
+            0% {
+                -webkit-transform: scale(0);
+                transform: scale(0);
+            }
+            100% {
+                -webkit-transform: scale(1.0);
+                transform: scale(1.0);
+                opacity: 0;
+            }
+        }
+        
+        @keyframes sk-pulseScaleOut {
+            0% {
+                -webkit-transform: scale(0);
+                transform: scale(0);
+            }
+            100% {
+                -webkit-transform: scale(1.0);
+                transform: scale(1.0);
+                opacity: 0;
+            }
+        }
+        
+        .spinner-text {
+            float: left;
+        }
+        
+        #record-icon-container {
+            position: absolute;
+            right: 1px;
+            top: 1px;
+            font-family: sans-serif;
+            font-weight: bold;
+            font-size: 16px;
+            color: rgb(87, 86, 86);
+        }
+        
+        #record-icon {
+            width: 20px;
+            height: 20px;
+            display: inline-block;
+            background: red;
+            border-radius: 51%;
+        }
+        
+        #svg {
+            display: none;
+        }
+        
+        #button-container {
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            z-index: 2;
+        }
+        
+        .icon {
+            width: 60px;
+            height: 60px;
+            padding: 10px;
+            padding-left: 0;
+            cursor: pointer;
+        }
+        
+        #splash-screen {
+            /* height: 100vh;
+            width: 100vw; */
+            z-index: 2;
+            position: absolute;
+            background-color: #C2E7FA;
+        }
+        
+        #loading-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: absolute;
+            bottom: 5px;
+            z-index: 2;
+        }</style>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+<body>
+    <div id="splash-screen"></div>
+    <div id="record-icon-container" hidden="hidden">
+        <span id="record-icon"></span> Rec.
+    </div>
+    <div id="loading-container">
+        <div id="info" style="display:none">
+        </div>
+        <div id="loading" style="position: relative; left: 0">
+            <span class="spinner-text" id="status">
+                Loading PoseNet model...
+            </span>
+            <div class="sk-spinner sk-spinner-pulse"></div>
+        </div>
+    </div>
+    <div id="main" style="display:none">
+        <video id="video" playsinline="" style=" -moz-transform: scaleX(-1);
+        -o-transform: scaleX(-1);
+        -webkit-transform: scaleX(-1);
+        transform: scaleX(-1);
+        display: none;
+        ">
+        </video>
+        <canvas id="output" class="camera-canvas"></canvas>
+        <canvas id="keypoints" class="camera-canvas"></canvas>
+    </div>
+    <div id="button-container" hidden="hidden">
+        <!-- <button id="record-btn">Start Recording</button>
+        <button id="capture">Capture</button>
+        <button id="debug">Show Keypoints</button> -->
+        <input type="file" id="bg-file" hidden="">
+        <label for="bg-file"><svg version="1.1" id="bg-icon" class="bg icon" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 64 64" style="enable-background:new 0 0 64 64;" xml:space="preserve">
+<style>.stb0{fill:#E0995E;}
+	.stb1{opacity:0.2;}
+	.stb2{fill:#231F20;}
+	.stb3{fill:#77B3D4;}
+	.stb4{fill:#FFFFFF;}
+	.stb5{fill:#4F5D73;}
+	.stb6{fill:#F5CF87;}</style>
+<g id="Layer_1">
+	<g>
+		<circle class="stb0" cx="32" cy="32" r="32"></circle>
+	</g>
+	<g class="stb1">
+		<g>
+			<polygon class="stb2" points="48,26 48,18 16,18 16,26 16,50 48,50 			"></polygon>
+		</g>
+		<g>
+			<path class="stb2" d="M48,14H16c-2.2,0-4,1.8-4,4v8v24c0,2.2,1.8,4,4,4h32c2.2,0,4-1.8,4-4V26v-8C52,15.8,50.2,14,48,14z"></path>
+		</g>
+	</g>
+	<g>
+		<g>
+			<path class="stb3" d="M16,50c-1.1,0-2-0.9-2-2V16c0-1.1,0.9-2,2-2h32c1.1,0,2,0.9,2,2v32c0,1.1-0.9,2-2,2H16z"></path>
+		</g>
+		<g>
+			<path class="stb4" d="M48,16v8v24H16V24v-8H48 M48,12H16c-2.2,0-4,1.8-4,4v8v24c0,2.2,1.8,4,4,4h32c2.2,0,4-1.8,4-4V24v-8
+				C52,13.8,50.2,12,48,12L48,12z"></path>
+		</g>
+	</g>
+	<g>
+		<rect x="16" y="44" class="stb4" width="32" height="4"></rect>
+	</g>
+	<g>
+		<g>
+			<path class="stb5" d="M14,44h34.9v-2.9c0,0-1.7-3-3.3-4.8c-1.2-1.4-2.9-1.8-4.5-0.1l-2.8,2.6l-6-7.6c-2.2-2.8-5.9-2.8-8.1,0L14,44
+				z"></path>
+		</g>
+	</g>
+	<g>
+		<circle class="stb6" cx="40" cy="24" r="3"></circle>
+	</g>
+	<g>
+		<path class="stb4" d="M48,16v8v24H16V24v-8H48 M48,12H16c-2.2,0-4,1.8-4,4v8v24c0,2.2,1.8,4,4,4h32c2.2,0,4-1.8,4-4V24v-8
+			C52,13.8,50.2,12,48,12L48,12z"></path>
+	</g>
+</g>
+<g id="Layer_2">
+</g>
+</svg></label>
+        <svg version="1.1" id="start-recording-icon" class="record-btn icon" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 750 750" style="enable-background:new 0 0 750 750;" xml:space="preserve">
+<style>.str1{fill:#ED1C24;stroke:#000000;stroke-miterlimit:10;}
+	.str2{stroke:#000000;stroke-miterlimit:10;}</style>
+<circle class="str1" cx="375.5" cy="374.5" r="375"></circle>
+<circle class="str2" cx="375.5" cy="374.5" r="185"></circle>
+</svg>
+
+        <svg version="1.1" id="stop-recording-icon" class="record-btn icon" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 750 750" style="display:none;enable-background:new 0 0 750 750;" xml:space="preserve">
+<circle class="str1" cx="375.5" cy="374.5" r="375"></circle>
+<path class="str2" d="M221.1,559.5h308.8c16.9,0,30.6-13.7,30.6-30.6V220.1c0-16.9-13.7-30.6-30.6-30.6H221.1
+	c-16.9,0-30.6,13.7-30.6,30.6v308.8C190.5,545.8,204.2,559.5,221.1,559.5z"></path>
+</svg>
+        <!-- ------------------------------------------ -->
+        <svg version="1.1" id="disabled" class="eye icon" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 469.4 469.4" style="enable-background:new 0 0 469.4 469.4;" xml:space="preserve">
+<style>.ste0{fill:#94A6FF;stroke:#000000;stroke-width:0.25;stroke-miterlimit:10;}</style>
+<circle class="ste0" cx="234.7" cy="233.7" r="234.7"></circle>
+<g>
+	<g>
+		<g>
+			<path d="M232.3,183.4l46.4,46.4l0.2-2.4c0-24.4-19.8-44.2-44.2-44.2L232.3,183.4z"></path>
+			<path d="M234.7,153.8c40.6,0,73.6,33,73.6,73.6c0,9.5-1.9,18.5-5.2,26.9l43.1,43.1c22.2-18.5,39.7-42.5,50.6-69.9
+				c-25.5-64.6-88.3-110.4-162-110.4c-20.6,0-40.3,3.7-58.7,10.3l31.8,31.7C216.1,155.8,225.2,153.8,234.7,153.8z"></path>
+			<path d="M87.5,113.7l33.6,33.6l6.7,6.7c-24.3,19-43.5,44.2-55,73.4c25.5,64.6,88.3,110.4,161.9,110.4c22.8,0,44.6-4.4,64.5-12.4
+				l6.3,6.3l42.9,43l18.8-18.7l-260.9-261L87.5,113.7z M168.9,195l22.7,22.7c-0.7,3.2-1.1,6.3-1.1,9.6c0,24.4,19.8,44.2,44.2,44.2
+				c3.3,0,6.5-0.4,9.6-1.1l22.7,22.7c-9.8,4.9-20.7,7.8-32.3,7.8c-40.6,0-73.6-33-73.6-73.6C161.1,215.7,164,204.8,168.9,195z"></path>
+		</g>
+	</g>
+</g>
+</svg>
+        <svg version="1.1" id="enable" class="eye icon" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 469.4 469.4" style="enable-background:new 0 0 469.4 469.4; display:none;" xml:space="preserve">
+<circle class="ste0" cx="234.7" cy="233.7" r="234.7"></circle>
+<g>
+	<g>
+		<g>
+			<path d="M234.7,183.2c-24.4,0-44.2,19.8-44.2,44.2s19.8,44.2,44.2,44.2s44.2-19.8,44.2-44.2S259.1,183.2,234.7,183.2z"></path>
+			<path d="M234.7,117c-73.6,0-136.4,45.8-161.9,110.4c25.5,64.6,88.3,110.4,161.9,110.4c73.7,0,136.4-45.8,161.9-110.4
+				C371.2,162.7,308.4,117,234.7,117z M234.7,301c-40.6,0-73.6-33-73.6-73.6s33-73.6,73.6-73.6s73.6,33,73.6,73.6
+				S275.3,301,234.7,301z"></path>
+		</g>
+	</g>
+</g>
+</svg>
+
+        <!-- ----------------------------- -->
+        <svg version="1.1" id="capture-icon" class="icon" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;" xml:space="preserve">
+        <style>.st0{fill:#808080;}
+            .st1{fill:#DDDDDD;}</style>
+        <path d="M256,0C114.6,0,0,114.6,0,256s114.6,256,256,256c141.3-0.2,255.8-114.7,256-256C512,114.6,397.4,0,256,0z M256,497.4
+            C122.7,497.4,14.6,389.3,14.6,256S122.7,14.6,256,14.6C389.3,14.8,497.2,122.8,497.4,256C497.4,389.3,389.3,497.4,256,497.4z"></path>
+        <path class="st0" d="M256,14.6C122.7,14.6,14.6,122.7,14.6,256S122.7,497.4,256,497.4S497.4,389.3,497.4,256
+            C497.2,122.8,389.3,14.8,256,14.6z M256,447.4c-105.7,0-191.4-85.7-191.4-191.4c0-105.7,85.7-191.4,191.4-191.4
+            c105.7,0,191.4,85.7,191.4,191.4v0C447.2,361.6,361.6,447.2,256,447.4z"></path>
+        <path d="M256,64.6C150.3,64.6,64.6,150.3,64.6,256c0,105.7,85.7,191.4,191.4,191.4c105.6-0.1,191.2-85.7,191.4-191.4v0
+            C447.4,150.3,361.7,64.6,256,64.6z M317.5,421.8c-5.2,1.9-10.5,3.6-16,5.1c-14.5,3.9-29.8,5.9-45.5,5.9
+            c-56.2,0-106.2-26.2-138.6-67.1c-3.5-4.3-6.7-8.9-9.7-13.5c-18-27.7-28.4-60.7-28.4-96.2c0-36.2,10.9-69.8,29.5-97.9
+            c3.1-4.7,6.4-9.2,9.9-13.5c32.4-39.9,81.9-65.4,137.3-65.4c16.5,0,32.5,2.3,47.6,6.5c5.4,1.5,10.7,3.3,15.8,5.3
+            c64.1,24.7,110.1,85.6,113.1,157.6c0.1,2.4,0.2,4.8,0.2,7.3c0,0,0,0,0,0c0,3.2-0.1,6.3-0.3,9.4C428.7,337.3,382,397.8,317.5,421.8z"></path>
+        <path class="st1" d="M303.6,85.8L154.7,223.6l-36-79c32.4-39.9,81.9-65.4,137.3-65.4C272.5,79.3,288.5,81.5,303.6,85.8z"></path>
+        <path class="st1" d="M192.6,342.1l-85,10c-18-27.7-28.4-60.7-28.4-96.2c0-36.2,10.9-69.8,29.5-97.9L192.6,342.1z"></path>
+        <path class="st1" d="M318.3,342l-16.8,84.9c-14.5,3.9-29.8,5.9-45.5,5.9c-56.2,0-106.2-26.2-138.6-67.1l86-10.1h0l0.4,0h0.1l0.9-0.1
+            L318.3,342z"></path>
+        <path class="st1" d="M432.5,265.4c-3.8,71.9-50.5,132.4-115,156.4l39.4-198.7L432.5,265.4z"></path>
+        <path class="st1" d="M432.6,248.7l-176.7-98.8l63.6-58.8C383.5,115.8,429.6,176.7,432.6,248.7z"></path>
+        <polygon class="st0" points="343.4,215.6 321.3,326.9 207.9,340.3 161.1,237.6 244.6,160.3 "></polygon>
+        <path d="M322.7,88.1l-3.2,3l-63.6,58.8l-11.3,10.4l-83.5,77.3l-3.9,3.6c-1.4,1.3-3.1,2-5,2c-4,0-7.3-3.3-7.3-7.3c0-2,0.9-4,2.3-5.4
+            l7.4-6.9L303.6,85.8l9.1-8.5c3-2.8,7.6-2.6,10.3,0.4C325.9,80.7,325.7,85.3,322.7,88.1z"></path>
+        <path d="M206.5,354.8c-0.5,0.3-1.1,0.4-1.7,0.5l-0.9,0.1h-0.1c-0.1,0-0.3,0-0.4,0v0h0c-2.9,0-5.5-1.7-6.7-4.3l-4.2-9.1l-83.8-184
+            l-5.2-11.4c-1.7-3.7-0.1-8,3.5-9.7c3.7-1.7,8-0.1,9.7,3.5c0,0,0,0.1,0.1,0.1l1.8,4l36,79l6.4,14l46.8,102.7l2.2,4.8
+            C211.8,348.8,210.2,353.2,206.5,354.8z"></path>
+        <path d="M328.4,340.8l-10.1,1.2l-113.6,13.4l-0.9,0.1h-0.1l-0.4,0h0l-86,10.1l-12.4,1.5c-0.3,0-0.6,0.1-0.9,0.1
+            c-4,0-7.3-3.3-7.3-7.3c0-3.7,2.8-6.8,6.5-7.2l4.3-0.5l85-10l15.3-1.8l113.4-13.4l5.3-0.6c4-0.4,7.6,2.5,8,6.5
+            C335.1,336.7,332.3,340.3,328.4,340.8z"></path>
+        <path d="M358.8,213.3l-2,9.9l-39.4,198.7l-2.4,12.1c-0.7,3.4-3.7,5.9-7.2,5.9c-0.5,0-1,0-1.5-0.1c-4-0.8-6.5-4.6-5.7-8.6l0.8-4.2
+            l16.8-84.9l3-15.1l22.1-111.3l1-5.2c0.8-4,4.6-6.5,8.6-5.8C357,205.4,359.6,209.3,358.8,213.3z"></path>
+        <path d="M446.3,264.7c-1.3,2.3-3.7,3.8-6.4,3.8v0c-1.3,0-2.5-0.3-3.6-0.9l-3.8-2.1l-75.6-42.3l-13.4-7.5l-98.8-55.3l-4.2-2.3
+            c-3.6-1.9-4.9-6.3-3.1-9.9c1.9-3.6,6.3-4.9,9.9-3.1c0.1,0.1,0.2,0.1,0.3,0.2l8.3,4.7l176.7,98.8l10.9,6.1
+            C447,256.8,448.3,261.2,446.3,264.7z"></path>
+        </svg>
+
+    </div>
+    <div class="canvas-container">
+        <canvas id="illustration" class="illustration-canvas">
+    </canvas></div>
+        <canvas id="illustration-recording" class="illustration-canvas-recording" hidden="">
+        <div class="footer">
+            <!-- <div class="footer-text">
+                <p>
+                    Pose Animator runs TF.js <strong>FaceMesh</strong> and <strong>PoseNet</strong> models to animate SVG illustrations with camera feed / static images.<br>
+                    It currently supports <strong>single-pose</strong>, <strong>single-face</strong> detection, and has been tested on Destkop Chrome & iOS Safari.
+                    <br>
+                    (PoseNet model config - MobileNetV1, output stride 16, quant bytes 2)
+                </p>
+            </div> -->
+        </div>
+        <!-- <span id="for-full-screen" hidden="hidden" ></span> -->
+        <!-- <a href="javascript:;" onclick="window.open('index.htm','','fullscreen,scrollbars');">Open Window Fullscreen</a> -->
+    <script src="camera.9773ffa7.js"></script>
+</canvas></body>
+
+</html>

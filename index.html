@@ -2,13 +2,16 @@
 <html>
 
 <head>
-    <title>PoseNet - Camera Feed Demo</title>
+    <title>REPLICATION OF HUMAN ACTIVITY ON MACHINE</title>
+    <link rel="icon" href="boy-icon.edd7188c.svg" type="image/x-icon">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>body {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            background-color: #C2E7FA;
+            background: rgb(254, 198, 101);
+            background: linear-gradient(90deg, rgba(254, 198, 101, 1) 0%, rgba(254, 244, 85, 1) 100%);
             background-attachment: fixed;
             background-size: cover;
         }
@@ -32,73 +35,6 @@
             left: 0;
             position: absolute;
         }
-        /* .illustration-canvas { */
-        /* border: 1px solid #eeeeee; */
-        /* } */
-        
-        .footer {
-            position: fixed;
-            left: 0;
-            bottom: 0;
-            width: 100%;
-            color: black;
-        }
-        
-        .footer-text {
-            max-width: 600px;
-            text-align: center;
-            margin: auto;
-        }
-        
-        @media only screen and (max-width: 600px) {
-            .footer-text,
-            .dg {
-                display: none;
-            }
-        }
-        /*
-         *  The following loading spinner CSS is from SpinKit project
-         *  https://github.com/tobiasahlin/SpinKit
-         */
-        
-        .sk-spinner-pulse {
-            width: 20px;
-            height: 20px;
-            margin: auto 10px;
-            float: left;
-            background-color: rgb(97, 97, 97);
-            border-radius: 100%;
-            -webkit-animation: sk-pulseScaleOut 1s infinite ease-in-out;
-            animation: sk-pulseScaleOut 1s infinite ease-in-out;
-        }
-        
-        @-webkit-keyframes sk-pulseScaleOut {
-            0% {
-                -webkit-transform: scale(0);
-                transform: scale(0);
-            }
-            100% {
-                -webkit-transform: scale(1.0);
-                transform: scale(1.0);
-                opacity: 0;
-            }
-        }
-        
-        @keyframes sk-pulseScaleOut {
-            0% {
-                -webkit-transform: scale(0);
-                transform: scale(0);
-            }
-            100% {
-                -webkit-transform: scale(1.0);
-                transform: scale(1.0);
-                opacity: 0;
-            }
-        }
-        
-        .spinner-text {
-            float: left;
-        }
         
         #record-icon-container {
             position: absolute;
@@ -118,10 +54,6 @@
             border-radius: 51%;
         }
         
-        #svg {
-            display: none;
-        }
-        
         #button-container {
             position: absolute;
             right: 0;
@@ -129,20 +61,58 @@
             z-index: 2;
         }
         
-        .icon {
+        .btn-icon-container {
             width: 60px;
             height: 60px;
-            padding: 10px;
-            padding-left: 0;
+            margin: 10px;
+            margin-left: 0;
+            border-radius: 50%;
+            display: inline-block;
             cursor: pointer;
+            text-align: center;
+            background-color: #ffffff8a;
+        }
+        
+        .alphabet {
+            display: none;
+        }
+        
+        .btn-icon-container:hover .alphabet {
+            display: inline;
+            position: relative;
+            font-size: 1.3em;
+            font-weight: 700;
+            font-family: sans-serif;
+            top: 30%;
+        }
+        
+        .btn-icon-container:hover .icon {
+            visibility: hidden;
         }
         
         #splash-screen {
-            /* height: 100vh;
-            width: 100vw; */
             z-index: 2;
             position: absolute;
-            background-color: #C2E7FA;
+            background: rgb(254, 198, 101);
+            background: linear-gradient(90deg, rgba(254, 198, 101, 1) 0%, rgba(254, 244, 85, 1) 100%);
+            text-align: center;
+            bottom: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        #splash-screen-main>p {
+            display: inline;
+            padding: 0.6em 6em;
+            background-color: #000;
+            color: #fff;
+        }
+        
+        #splash-screen-main>h1 {
+            font-weight: 800;
+            color: #3E0600;
         }
         
         #loading-container {
@@ -153,12 +123,95 @@
             position: absolute;
             bottom: 5px;
             z-index: 2;
+        }
+        
+        @media only screen and (max-width: 600px) {
+            #button-container {
+                right: auto;
+            }
+            #splash-screen-main>h1 {
+                font-size: x-large;
+            }
+            #splash-screen-main>p {
+                font-size: 0.7em;
+                padding: 0.6em 2.8em;
+            }
+        }
+        
+        .spinner {
+            margin: auto 10px;
+            float: left;
+            width: 40px;
+            height: 20px;
+            text-align: center;
+            font-size: 10px;
+        }
+        
+        .spinner>div {
+            background-color: #333;
+            height: 100%;
+            width: 6px;
+            display: inline-block;
+            -webkit-animation: sk-stretchdelay 1.2s infinite ease-in-out;
+            animation: sk-stretchdelay 1.2s infinite ease-in-out;
+        }
+        
+        .spinner .rect2 {
+            -webkit-animation-delay: -1.1s;
+            animation-delay: -1.1s;
+        }
+        
+        .spinner .rect3 {
+            -webkit-animation-delay: -1.0s;
+            animation-delay: -1.0s;
+        }
+        
+        .spinner .rect4 {
+            -webkit-animation-delay: -0.9s;
+            animation-delay: -0.9s;
+        }
+        
+        .spinner .rect5 {
+            -webkit-animation-delay: -0.8s;
+            animation-delay: -0.8s;
+        }
+        
+        @-webkit-keyframes sk-stretchdelay {
+            0%,
+            40%,
+            100% {
+                -webkit-transform: scaleY(0.4)
+            }
+            20% {
+                -webkit-transform: scaleY(1.0)
+            }
+        }
+        
+        @keyframes sk-stretchdelay {
+            0%,
+            40%,
+            100% {
+                transform: scaleY(0.4);
+                -webkit-transform: scaleY(0.4);
+            }
+            20% {
+                transform: scaleY(1.0);
+                -webkit-transform: scaleY(1.0);
+            }
+        }
+        
+        .spinner-text {
+            float: left;
         }</style>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 
 <body>
-    <div id="splash-screen"></div>
+    <div id="splash-screen" hidden="hidden">
+        <div id="splash-screen-main">
+            <h1>REPLICATION OF HUMAN ACTIVITY ON MACHINE</h1>
+            <p>Bringing characters to life via mocap</p>
+        </div>
+    </div>
     <div id="record-icon-container" hidden="hidden">
         <span id="record-icon"></span> Rec.
     </div>
@@ -167,9 +220,15 @@
         </div>
         <div id="loading" style="position: relative; left: 0">
             <span class="spinner-text" id="status">
-                Loading PoseNet model...
+                Loading PoseNet model 
             </span>
-            <div class="sk-spinner sk-spinner-pulse"></div>
+            <div class="spinner">
+                <div class="rect1"></div>
+                <div class="rect2"></div>
+                <div class="rect3"></div>
+                <div class="rect4"></div>
+                <div class="rect5"></div>
+            </div>
         </div>
     </div>
     <div id="main" style="display:none">
@@ -184,11 +243,10 @@
         <canvas id="keypoints" class="camera-canvas"></canvas>
     </div>
     <div id="button-container" hidden="hidden">
-        <!-- <button id="record-btn">Start Recording</button>
-        <button id="capture">Capture</button>
-        <button id="debug">Show Keypoints</button> -->
         <input type="file" id="bg-file" hidden="">
-        <label for="bg-file"><svg version="1.1" id="bg-icon" class="bg icon" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 64 64" style="enable-background:new 0 0 64 64;" xml:space="preserve">
+        <label for="bg-file">
+            <div class="btn-icon-container">
+            <svg version="1.1" id="bg-icon" class="bg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 64 64" style="enable-background:new 0 0 64 64;" xml:space="preserve">
 <style>.stb0{fill:#E0995E;}
 	.stb1{opacity:0.2;}
 	.stb2{fill:#231F20;}
@@ -236,21 +294,27 @@
 </g>
 <g id="Layer_2">
 </g>
-</svg></label>
-        <svg version="1.1" id="start-recording-icon" class="record-btn icon" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 750 750" style="enable-background:new 0 0 750 750;" xml:space="preserve">
+</svg>
+</div></label>
+        <div id="record-btn" class="btn-icon-container">
+            <span class="alphabet">R</span>
+            <svg version="1.1" id="start-recording-icon" class="icon" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 750 750" style="enable-background:new 0 0 750 750;" xml:space="preserve">
 <style>.str1{fill:#ED1C24;stroke:#000000;stroke-miterlimit:10;}
 	.str2{stroke:#000000;stroke-miterlimit:10;}</style>
 <circle class="str1" cx="375.5" cy="374.5" r="375"></circle>
 <circle class="str2" cx="375.5" cy="374.5" r="185"></circle>
 </svg>
 
-        <svg version="1.1" id="stop-recording-icon" class="record-btn icon" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 750 750" style="display:none;enable-background:new 0 0 750 750;" xml:space="preserve">
+            <svg version="1.1" id="stop-recording-icon" class="icon" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 750 750" style="display:none;enable-background:new 0 0 750 750;" xml:space="preserve">
 <circle class="str1" cx="375.5" cy="374.5" r="375"></circle>
 <path class="str2" d="M221.1,559.5h308.8c16.9,0,30.6-13.7,30.6-30.6V220.1c0-16.9-13.7-30.6-30.6-30.6H221.1
 	c-16.9,0-30.6,13.7-30.6,30.6v308.8C190.5,545.8,204.2,559.5,221.1,559.5z"></path>
 </svg>
+        </div>
         <!-- ------------------------------------------ -->
-        <svg version="1.1" id="disabled" class="eye icon" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 469.4 469.4" style="enable-background:new 0 0 469.4 469.4;" xml:space="preserve">
+        <div id="eye" class="btn-icon-container">
+            <span class="alphabet">D</span>
+            <svg version="1.1" id="disabled" class="icon" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 469.4 469.4" style="enable-background:new 0 0 469.4 469.4;" xml:space="preserve">
 <style>.ste0{fill:#94A6FF;stroke:#000000;stroke-width:0.25;stroke-miterlimit:10;}</style>
 <circle class="ste0" cx="234.7" cy="233.7" r="234.7"></circle>
 <g>
@@ -266,7 +330,7 @@
 	</g>
 </g>
 </svg>
-        <svg version="1.1" id="enable" class="eye icon" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 469.4 469.4" style="enable-background:new 0 0 469.4 469.4; display:none;" xml:space="preserve">
+            <svg version="1.1" id="enable" class="icon" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 469.4 469.4" style="enable-background:new 0 0 469.4 469.4; display:none;" xml:space="preserve">
 <circle class="ste0" cx="234.7" cy="233.7" r="234.7"></circle>
 <g>
 	<g>
@@ -279,9 +343,12 @@
 	</g>
 </g>
 </svg>
+        </div>
 
         <!-- ----------------------------- -->
-        <svg version="1.1" id="capture-icon" class="icon" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;" xml:space="preserve">
+        <div id="capture-btn" class="btn-icon-container">
+            <span class="alphabet">C</span>
+            <svg version="1.1" id="capture-icon" class="icon" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;" xml:space="preserve">
         <style>.st0{fill:#808080;}
             .st1{fill:#DDDDDD;}</style>
         <path d="M256,0C114.6,0,0,114.6,0,256s114.6,256,256,256c141.3-0.2,255.8-114.7,256-256C512,114.6,397.4,0,256,0z M256,497.4
@@ -315,25 +382,14 @@
             c-3.6-1.9-4.9-6.3-3.1-9.9c1.9-3.6,6.3-4.9,9.9-3.1c0.1,0.1,0.2,0.1,0.3,0.2l8.3,4.7l176.7,98.8l10.9,6.1
             C447,256.8,448.3,261.2,446.3,264.7z"></path>
         </svg>
+        </div>
 
     </div>
     <div class="canvas-container">
         <canvas id="illustration" class="illustration-canvas">
     </canvas></div>
         <canvas id="illustration-recording" class="illustration-canvas-recording" hidden="">
-        <div class="footer">
-            <!-- <div class="footer-text">
-                <p>
-                    Pose Animator runs TF.js <strong>FaceMesh</strong> and <strong>PoseNet</strong> models to animate SVG illustrations with camera feed / static images.<br>
-                    It currently supports <strong>single-pose</strong>, <strong>single-face</strong> detection, and has been tested on Destkop Chrome & iOS Safari.
-                    <br>
-                    (PoseNet model config - MobileNetV1, output stride 16, quant bytes 2)
-                </p>
-            </div> -->
-        </div>
-        <!-- <span id="for-full-screen" hidden="hidden" ></span> -->
-        <!-- <a href="javascript:;" onclick="window.open('index.htm','','fullscreen,scrollbars');">Open Window Fullscreen</a> -->
-    <script src="camera.9773ffa7.js"></script>
+    <script src="camera.76a24bf2.js"></script>
 </canvas></body>
 
 </html>

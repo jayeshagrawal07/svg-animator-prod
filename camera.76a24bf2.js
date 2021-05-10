@@ -70763,22 +70763,6 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
-/**
- * @license
- * Copyright 2020 Google Inc. All Rights Reserved.
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * https://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- * =============================================================================
- */
 function getDistance(p0, p1) {
   return Math.sqrt((p0.x - p1.x) * (p0.x - p1.x) + (p0.y - p1.y) * (p0.y - p1.y));
 }
@@ -72635,6 +72619,7 @@ function detectPoseInRealTime(video) {
                 _skeleton.Skeleton.flipPose(poses[0]);
 
                 if (faceDetection && faceDetection.length > 0) {
+                  a++ === 0 && console.log(poses);
                   face = _skeleton.Skeleton.toFaceFrame(faceDetection[0]);
                   recording && illustrationRecording.updateSkeleton(poses[0], face);
                   illustration.updateSkeleton(poses[0], face);
@@ -72771,8 +72756,8 @@ function _bindPage() {
             // setupFPS();
             (0, _demoUtils.toggleLoadingUI)(false); // fullScreenKey.click();
 
-            document.body.style.backgroundImage = "url(".concat(bg.default, ")");
-            document.getElementById('splash-screen').setAttribute("hidden", "hidden");
+            document.getElementById('splash-screen').style.display = "none";
+            ;
             document.getElementById('button-container').removeAttribute("hidden");
             detectPoseInRealTime(video, posenet);
 
@@ -72876,19 +72861,15 @@ function sendFile(fileName, url) {
   document.body.removeChild(link);
 }
 
-document.getElementById('capture-icon').onclick = function () {
+document.querySelector('#capture-btn').onclick = function () {
   screenShot();
 };
 
-document.querySelectorAll('.eye').forEach(function (item) {
-  item.addEventListener('click', function (event) {
-    showKeypoint();
-  });
+document.querySelector('#eye').addEventListener('click', function (event) {
+  showKeypoint();
 });
-document.querySelectorAll('.record-btn').forEach(function (item) {
-  item.addEventListener('click', function (event) {
-    recordingFunc();
-  });
+document.querySelector('#record-btn').addEventListener('click', function (event) {
+  recordingFunc();
 });
 
 function screenShot() {
@@ -72925,10 +72906,10 @@ function recordingFunc() {
 }
 
 window.onload = function () {
-  console.log(window.innerWidth.toString());
-  console.log(window.innerHeight.toString());
   document.getElementById('splash-screen').style.width = window.innerWidth.toString() + "px";
   document.getElementById('splash-screen').style.height = window.innerHeight.toString() + "px";
+  document.getElementById('splash-screen').style.display = "flex";
+  document.body.style.backgroundImage = "url(".concat(bg.default, ")");
 }; // function readURL(input) {
 //     console.log(input);
 // }

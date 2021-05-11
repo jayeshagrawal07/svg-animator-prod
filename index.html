@@ -77,19 +77,6 @@
             display: none;
         }
         
-        .btn-icon-container:hover .alphabet {
-            display: inline;
-            position: relative;
-            font-size: 1.3em;
-            font-weight: 700;
-            font-family: sans-serif;
-            top: 30%;
-        }
-        
-        .btn-icon-container:hover .icon {
-            visibility: hidden;
-        }
-        
         #splash-screen {
             z-index: 2;
             position: absolute;
@@ -123,6 +110,20 @@
             position: absolute;
             bottom: 5px;
             z-index: 2;
+        }
+        
+        @media (hover: hover) and (pointer: fine) {
+            .btn-icon-container:hover .alphabet {
+                display: inline;
+                position: relative;
+                font-size: 1.3em;
+                font-weight: 700;
+                font-family: sans-serif;
+                top: 30%;
+            }
+            .btn-icon-container:hover .icon {
+                visibility: hidden;
+            }
         }
         
         @media only screen and (max-width: 600px) {
@@ -206,7 +207,7 @@
 </head>
 
 <body>
-    <div id="splash-screen" hidden="hidden">
+    <div id="splash-screen">
         <div id="splash-screen-main">
             <h1>REPLICATION OF HUMAN ACTIVITY ON MACHINE</h1>
             <p>Bringing characters to life via mocap</p>

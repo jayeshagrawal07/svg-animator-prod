@@ -72302,11 +72302,88 @@ var PoseIllustration = /*#__PURE__*/function () {
 }();
 
 exports.PoseIllustration = PoseIllustration;
-},{"./skeleton":"CNpF","../utils/mathUtils":"ShWY","../utils/svgUtils":"aM2g","../utils/colorUtils":"wtNy"}],"zafw":[function(require,module,exports) {
+},{"./skeleton":"CNpF","../utils/mathUtils":"ShWY","../utils/svgUtils":"aM2g","../utils/colorUtils":"wtNy"}],"bn5e":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.FileUtils = void 0;
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+var FileUtils = /*#__PURE__*/function () {
+  function FileUtils() {
+    _classCallCheck(this, FileUtils);
+  }
+
+  _createClass(FileUtils, null, [{
+    key: "setDragDropHandler",
+    value: function setDragDropHandler(handler) {
+      window.addEventListener("dragover", function (e) {
+        e = e || event;
+        e.preventDefault();
+      }, false);
+      window.addEventListener("drop", function (e) {
+        e = e || event;
+        e.preventDefault();
+
+        if (e.dataTransfer.items) {
+          var files = e.dataTransfer.items;
+
+          if (files.length < 1) {
+            return;
+          }
+
+          var reader = new FileReader();
+
+          reader.onload = function (event) {
+            handler(event.target.result);
+          };
+
+          reader.readAsText(e.dataTransfer.files[0]);
+        }
+      }, false);
+    }
+  }, {
+    key: "setBackgroundImage",
+    value: function setBackgroundImage(img) {
+      if (img.files && img.files[0]) {
+        var reader = new FileReader();
+
+        reader.onload = function (e) {
+          document.body.style.backgroundImage = "url(".concat(e.target.result, ")");
+        };
+
+        reader.readAsDataURL(img.files[0]);
+      }
+    }
+  }, {
+    key: "sendFile",
+    value: function sendFile(fileName, url) {
+      var link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', fileName);
+      link.style.display = 'none';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  }]);
+
+  return FileUtils;
+}();
+
+exports.FileUtils = FileUtils;
+},{}],"zafw":[function(require,module,exports) {
 module.exports = "boy.27a924a4.svg";
 },{}],"McZ2":[function(require,module,exports) {
 module.exports = "bg.1fb1e28d.jpg";
-},{}],"SbO4":[function(require,module,exports) {
+},{}],"Focm":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -72331,6 +72408,8 @@ var _svgUtils = require("./utils/svgUtils");
 var _illustration = require("./illustrationGen/illustration");
 
 var _skeleton = require("./illustrationGen/skeleton");
+
+var _fileUtils = require("./utils/fileUtils");
 
 var boySVG = _interopRequireWildcard(require("./resources/illustration/boy.svg"));
 
@@ -72367,20 +72446,12 @@ var minPoseConfidence = 0.15;
 var minPartConfidence = 0.1;
 var nmsRadius = 30.0; // Misc
 
-var mobile = false; // const stats = new Stats();
-
+var mobile = false;
 var avatarSvgs = {
-  'boy': boySVG.default // 'girl': girlSVG.default,
-  // 'boy2': boy2SVG.default,
-  // 'abstract': abstractSVG.default,
-  // 'blathers': blathersSVG.default,
-  // 'tom-nook': tomNookSVG.default,
-  // 'hello': helloSVG.default,
-
+  'boy': boySVG.default
 };
 /**
  * Loads a the camera to be used in the demo
- *
  */
 
 function setupCamera() {
@@ -72467,39 +72538,7 @@ var defaultPoseNetArchitecture = 'MobileNetV1';
 var defaultQuantBytes = 2;
 var defaultMultiplier = 1.0;
 var defaultStride = 16;
-var defaultInputResolution = 200; // const guiState = {
-//     avatarSVG: Object.keys(avatarSvgs)[0],
-//     debug: {
-//         showDetectionDebug: true,
-//         showIllustrationDebug: false,
-//     },
-// };
-
-/**
- * Sets up dat.gui controller on the top-right of the window
- */
-// function setupGui(cameras) {
-//     if (cameras.length > 0) {
-//         guiState.camera = cameras[0].deviceId;
-//     }
-//     const gui = new dat.GUI({ width: 300 });
-//     let multi = gui.addFolder('Image');
-//     gui.add(guiState, 'avatarSVG', Object.keys(avatarSvgs)).onChange(() => parseSVG(avatarSvgs[guiState.avatarSVG]));
-//     multi.open();
-//     let output = gui.addFolder('Debug control');
-//     output.add(guiState.debug, 'showDetectionDebug');
-//     output.add(guiState.debug, 'showIllustrationDebug');
-//     output.open();
-// }
-
-/**
- * Sets up a frames per second panel on the top-left of the window
- */
-// function setupFPS() {
-//     stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
-//     document.getElementById('main').appendChild(stats.dom);
-// }
-
+var defaultInputResolution = 200;
 /**
  * Feeds an image to posenet to estimate poses - this is where the magic
  * happens. This function loops with a requestAnimationFrame method.
@@ -72514,7 +72553,6 @@ function detectPoseInRealTime(video) {
   canvas.height = videoHeight;
   keypointCanvas.width = videoWidth;
   keypointCanvas.height = videoHeight;
-  var a = 0;
 
   function poseDetectionFrame() {
     return _poseDetectionFrame.apply(this, arguments);
@@ -72527,8 +72565,6 @@ function detectPoseInRealTime(video) {
         while (1) {
           switch (_context.prev = _context.next) {
             case 0:
-              // Begin monitoring code for frames per second
-              // stats.begin();
               poses = [];
               videoCtx.clearRect(0, 0, videoWidth, videoHeight); // Draw video
 
@@ -72575,25 +72611,10 @@ function detectPoseInRealTime(video) {
                     (0, _demoUtils.drawPoint)(keypointCtx, p[1], p[0], 2, 'red');
                   });
                 });
-              } // a++ === 1 && console.log(paper.default.Raster);
-
+              }
 
               canvasScopeRecording.projects[rIndex].clear();
-              canvasScope.projects[iIndex].clear(); // let url = 'http://assets.paperjs.org/images/marilyn.jpg';
-              // let url = bg.default;
-              // var raster = new canvasScope.Raster(url, canvasScope.view.centers);
-              // canvasScope.project.activeLayer.addChild(raster).sendToBack();
-              // raster.position = new canvasScope.Point();
-              // // raster.onLoad = function() {
-              // -----------
-              // var gradient = new canvasScope.Gradient(['yellow', 'red', 'blue']);
-              // var rect = new canvasScope.Item().importSVG(document.querySelector('#svg'));
-              // -------------
-              // let group = new canvasScope.Symbol(canvasScope.project.importSVG(bg.default));
-              // group.importSVG(bg.default)
-              // canvasScope.project.activeLayer.addChild(item).sendToBack();
-              // ------------
-              // a++ === 0 && console.log(canvasScopeRecording);
+              canvasScope.projects[iIndex].clear();
 
               if (recording) {
                 rect = new canvasScopeRecording.Path.Rectangle({
@@ -72603,23 +72624,12 @@ function detectPoseInRealTime(video) {
                   selected: true
                 });
                 canvasScopeRecording.projects[rIndex].activeLayer.addChild(rect).sendToBack();
-              } // let toAtivate = 
-              // canvasScope.project.activeLayer.importSVG(document.querySelector('#svg')).sendToBack();
-              // let layer = new canvasScope.Layer();
-              // toAtivate.addChild(rect).sendToBack();
-              // toAtivate.ativate()
-              // });
-              // // };
-              // link.setAttribute('download', fileName);
-              // link.click();
-              // document.body.removeChild(link);
-
+              }
 
               if (poses.length >= 1 && illustration) {
                 _skeleton.Skeleton.flipPose(poses[0]);
 
                 if (faceDetection && faceDetection.length > 0) {
-                  a++ === 0 && console.log(poses);
                   face = _skeleton.Skeleton.toFaceFrame(faceDetection[0]);
                   recording && illustrationRecording.updateSkeleton(poses[0], face);
                   illustration.updateSkeleton(poses[0], face);
@@ -72629,15 +72639,11 @@ function detectPoseInRealTime(video) {
                 }
 
                 recording && illustrationRecording.draw(canvasScopeRecording, videoWidth, videoHeight);
-                illustration.draw(canvasScope, videoWidth, videoHeight); // if (guiState.debug.showIllustrationDebug) {
-                //     illustration.debugDraw(canvasScope);
-                // }
+                illustration.draw(canvasScope, videoWidth, videoHeight);
               }
 
               recording && canvasScopeRecording.projects[rIndex].activeLayer.scale(canvasWidth / videoWidth, canvasHeight / videoHeight, new canvasScopeRecording.Point(0, 0));
-              canvasScope.projects[iIndex].activeLayer.scale(canvasWidth / videoWidth, canvasHeight / videoHeight, new canvasScope.Point(0, 0)); // End monitoring code for frames per second
-              // stats.end();
-
+              canvasScope.projects[iIndex].activeLayer.scale(canvasWidth / videoWidth, canvasHeight / videoHeight, new canvasScope.Point(0, 0));
               requestAnimationFrame(poseDetectionFrame);
 
             case 25:
@@ -72694,11 +72700,7 @@ function setupCanvas() {
 
 function bindPage() {
   return _bindPage.apply(this, arguments);
-} // navigator.getUserMedia = navigator.getUserMedia ||
-//     navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
-// debugger;
-// FileUtils.setDragDropHandler((result) => { parseSVG(result) });
-
+}
 
 function _bindPage() {
   _bindPage = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee4() {
@@ -72727,7 +72729,6 @@ function _bindPage() {
 
           case 9:
             facemesh = _context4.sent;
-            // setStatusText('Loading Avatar file...');
             t0 = new Date();
             _context4.next = 13;
             return parseSVG(Object.values(avatarSvgs)[0]);
@@ -72752,10 +72753,7 @@ function _bindPage() {
             throw _context4.t0;
 
           case 26:
-            // setupGui([], posenet);
-            // setupFPS();
-            (0, _demoUtils.toggleLoadingUI)(false); // fullScreenKey.click();
-
+            (0, _demoUtils.toggleLoadingUI)(false);
             document.getElementById('splash-screen').style.display = "none";
             ;
             document.getElementById('button-container').removeAttribute("hidden");
@@ -72800,8 +72798,7 @@ function _parseSVG() {
                 projectRecording = item;
                 rIndex = i;
               }
-            }); // console.log("b", canvasScopeRecording);
-
+            });
             illustration = new _illustration.PoseIllustration(canvasScope, project);
             illustrationRecording = new _illustration.PoseIllustration(canvasScopeRecording, projectRecording);
             illustration.bindSkeleton(skeleton, svgScope);
@@ -72828,9 +72825,7 @@ document.addEventListener('keydown', function (event) {
       break;
 
     case 'c':
-      screenShot(); // let svgURL = "data:image/svg+xml;utf8," + encodeURIComponent(canvasScope.project.exportSVG({ asString: true }));
-      // sendFile("Screen Shot", svgURL);
-
+      screenShot();
       break;
   }
 });
@@ -72848,18 +72843,9 @@ mediaRecorder.onstop = function (e) {
   });
   chunks = [];
   var videoURL = URL.createObjectURL(blob);
-  sendFile("Recording", videoURL);
-};
 
-function sendFile(fileName, url) {
-  var link = document.createElement('a');
-  link.setAttribute('href', url);
-  link.setAttribute('download', fileName);
-  link.style.display = 'none';
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-}
+  _fileUtils.FileUtils.sendFile("Recording", videoURL);
+};
 
 document.querySelector('#capture-btn').onclick = function () {
   screenShot();
@@ -72874,7 +72860,8 @@ document.querySelector('#record-btn').addEventListener('click', function (event)
 
 function screenShot() {
   var imageURL = document.getElementById('illustration').toDataURL("image/png");
-  sendFile("Screen Shot", imageURL);
+
+  _fileUtils.FileUtils.sendFile("Screen Shot", imageURL);
 }
 
 function showKeypoint() {
@@ -72910,21 +72897,16 @@ window.onload = function () {
   document.getElementById('splash-screen').style.height = window.innerHeight.toString() + "px";
   document.getElementById('splash-screen').style.display = "flex";
   document.body.style.backgroundImage = "url(".concat(bg.default, ")");
-}; // function readURL(input) {
-//     console.log(input);
-// }
-
+};
 
 document.querySelector('#bg-file').addEventListener("change", function () {
-  if (this.files && this.files[0]) {
-    var reader = new FileReader();
-
-    reader.onload = function (e) {
-      document.body.style.backgroundImage = "url(".concat(e.target.result, ")");
-    };
-
-    reader.readAsDataURL(this.files[0]);
-  }
+  _fileUtils.FileUtils.setBackgroundImage(this);
 });
+navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+
+_fileUtils.FileUtils.setDragDropHandler(function (result) {
+  parseSVG(result);
+});
+
 bindPage();
-},{"@tensorflow-models/posenet":"yqJr","@tensorflow-models/facemesh":"nF9o","@tensorflow/tfjs":"cHV2","paper":"kGI0","babel-polyfill":"JIy0","./utils/demoUtils":"IirR","./utils/svgUtils":"aM2g","./illustrationGen/illustration":"HF0I","./illustrationGen/skeleton":"CNpF","./resources/illustration/boy.svg":"zafw","./resources/samples/bg.jpg":"McZ2"}]},{},["SbO4"], null)
+},{"@tensorflow-models/posenet":"yqJr","@tensorflow-models/facemesh":"nF9o","@tensorflow/tfjs":"cHV2","paper":"kGI0","babel-polyfill":"JIy0","./utils/demoUtils":"IirR","./utils/svgUtils":"aM2g","./illustrationGen/illustration":"HF0I","./illustrationGen/skeleton":"CNpF","./utils/fileUtils":"bn5e","./resources/illustration/boy.svg":"zafw","./resources/samples/bg.jpg":"McZ2"}]},{},["Focm"], null)
